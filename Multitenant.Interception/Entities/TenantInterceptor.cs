@@ -26,7 +26,7 @@ namespace Multitenant.Interception.Entities
                 //        newQuery);
                 //}
 
-                var insertCommand = interceptionContext.OriginalResult as DbInsertCommandTree;
+                var insertCommand = interceptionContext.Result as DbInsertCommandTree;
                 if (insertCommand != null)
                 {
                     var column = TenantAttribute.GetTenantColumnName(insertCommand.Target.VariableType.EdmType);
