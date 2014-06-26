@@ -12,9 +12,9 @@ namespace Multitenant.Interception.Entities
         public override DbExpression Visit(DbScanExpression expression)
         {
             var column = TenantAttribute.GetTenantColumnName(expression.Target.ElementType);
-            if (column != null)
+            var identity = Thread.CurrentPrincipal.Identity as ClaimsIdentity;
+            if (column != null && identity!=null)
             {
-                var identity = (ClaimsIdentity)Thread.CurrentPrincipal.Identity;
                 var userId = identity.Claims.Single(c => c.Type == ClaimTypes.NameIdentifier).Value;
 
                 var binding = DbExpressionBuilder.Bind(expression);
@@ -26,10 +26,8 @@ namespace Multitenant.Interception.Entities
                             column),
                         DbExpression.FromString(userId)));
             }
-            else
-            {
-                return base.Visit(expression);
-            }
+
+            return base.Visit(expression);
         }
     
     }
