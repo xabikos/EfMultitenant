@@ -76,7 +76,6 @@
     <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
@@ -166,6 +165,13 @@
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\ProductCategoriesController.cs" />
+    <Compile Include="Entities\Configuration.cs" />
+    <Compile Include="Entities\Product.cs" />
+    <Compile Include="Entities\ProductCategory.cs" />
+    <Compile Include="Entities\TenantAttribute.cs" />
+    <Compile Include="Entities\TenantInterceptor.cs" />
+    <Compile Include="Entities\TenantQueryVisitor.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -234,6 +240,11 @@
     <Content Include="Views\Account\ResetPassword.cshtml" />
     <Content Include="Views\Account\ResetPasswordConfirmation.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
+    <Content Include="Views\ProductCategories\Create.cshtml" />
+    <Content Include="Views\ProductCategories\Delete.cshtml" />
+    <Content Include="Views\ProductCategories\Details.cshtml" />
+    <Content Include="Views\ProductCategories\Edit.cshtml" />
+    <Content Include="Views\ProductCategories\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

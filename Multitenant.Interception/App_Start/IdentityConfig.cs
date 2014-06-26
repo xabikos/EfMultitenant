@@ -29,10 +29,8 @@ namespace Multitenant.Interception
             manager.PasswordValidator = new PasswordValidator
             {
                 RequiredLength = 6,
-                RequireNonLetterOrDigit = true,
                 RequireDigit = true,
-                RequireLowercase = true,
-                RequireUppercase = true,
+                RequireLowercase = true
             };
             // Register two factor authentication providers. This application uses Phone and Emails as a step of receiving a code for verifying the user
             // You can write your own provider and plug in here.
