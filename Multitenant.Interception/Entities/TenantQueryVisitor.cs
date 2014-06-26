@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.Entity.Core.Common.CommandTrees;
 using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading;
-using System.Web;
-using Multitenant.Interception.Models;
 
 namespace Multitenant.Interception.Entities
 {
@@ -16,7 +14,9 @@ namespace Multitenant.Interception.Entities
             var column = TenantAttribute.GetTenantColumnName(expression.Target.ElementType);
             if (column != null)
             {
-                var principal = Thread.CurrentPrincipal as ApplicationUser;
+                var identity = (ClaimsIdentity)Thread.CurrentPrincipal.Identity;
+                var userId = identity.Claims.Single(c => c.Type == ClaimTypes.NameIdentifier).Value;
+
                 var binding = DbExpressionBuilder.Bind(expression);
                 return DbExpressionBuilder.Filter(
                     binding,
@@ -24,7 +24,7 @@ namespace Multitenant.Interception.Entities
                         DbExpressionBuilder.Property(
                             DbExpressionBuilder.Variable(binding.VariableType, binding.VariableName),
                             column),
-                        DbExpression.FromString("31fc8805-cfa9-43c0-8c8b-7f0c7ef4842f")));
+                        DbExpression.FromString(userId)));
             }
             else
             {
