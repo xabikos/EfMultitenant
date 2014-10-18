@@ -27,21 +27,23 @@ namespace Multitenant.Interception.Entities
                     return;
                 }
 
+                var identity = Thread.CurrentPrincipal.Identity as ClaimsIdentity;
+                if (identity == null)
+                {
+                    return;
+                }
+                var userId = identity.Claims.Single(c => c.Type == ClaimTypes.NameIdentifier).Value;
+
                 var insertCommand = interceptionContext.Result as DbInsertCommandTree;
                 if (insertCommand != null)
                 {
                     var column = TenantAttribute.GetTenantColumnName(insertCommand.Target.VariableType.EdmType);
-                    var identity = Thread.CurrentPrincipal.Identity as ClaimsIdentity;
-                    if (column != null && identity != null)
+                    if (!string.IsNullOrEmpty(column))
                     {
-                        var userId = identity.Claims.Single(c => c.Type == ClaimTypes.NameIdentifier).Value;
-
                         var tenantSetClause =
                             DbExpressionBuilder.SetClause(
-                                    DbExpressionBuilder.Property(
-                                        DbExpressionBuilder.Variable(insertCommand.Target.VariableType, insertCommand.Target.VariableName),
-                                        column),
-                                    DbExpression.FromString(userId));
+                                insertCommand.Target.VariableType.Variable(insertCommand.Target.VariableName)
+                                    .Property(column), DbExpression.FromString(userId));
 
                         var filteredSetClauses =
                             insertCommand.SetClauses.Cast<DbSetClause>()
@@ -60,6 +62,58 @@ namespace Multitenant.Interception.Entities
                             insertCommand.Returning);
 
                         interceptionContext.Result = newInsertCommand;
+                        return;
+                    }
+                }
+
+                var updateCommand = interceptionContext.Result as DbUpdateCommandTree;
+                if (updateCommand != null)
+                {
+                    var column = TenantAttribute.GetTenantColumnName(updateCommand.Target.VariableType.EdmType);
+                    if (!string.IsNullOrEmpty(column))
+                    {
+                        // Remove from set clauses the userId in case it was added by accident
+                        var setClausesWithoutSiteId =
+                            updateCommand.SetClauses.Cast<DbSetClause>()
+                                .Where(sc => ((DbPropertyExpression) sc.Property).Property.Name != column);
+
+                        var userIdPropertyExpression =
+                            updateCommand.Target.VariableType.Variable(updateCommand.Target.VariableName)
+                                .Property(column);
+                        var userIdExpression = userIdPropertyExpression.Equal(DbExpression.FromString(userId));
+
+                        var newUpdateCommand = new DbUpdateCommandTree(
+                            updateCommand.MetadataWorkspace,
+                            updateCommand.DataSpace,
+                            updateCommand.Target,
+                            updateCommand.Predicate.And(userIdExpression),
+                            new List<DbModificationClause>(setClausesWithoutSiteId).AsReadOnly(),
+                            updateCommand.Returning);
+
+                        interceptionContext.Result = newUpdateCommand;
+                        return;
+                    }
+                }
+
+                var deleteCommand = interceptionContext.Result as DbDeleteCommandTree;
+                if (deleteCommand != null)
+                {
+                    var column = TenantAttribute.GetTenantColumnName(deleteCommand.Target.VariableType.EdmType);
+
+                    if (!string.IsNullOrEmpty(column))
+                    {
+                        var userIdPropertyExpression =
+                            deleteCommand.Target.VariableType.Variable(deleteCommand.Target.VariableName)
+                                .Property(column);
+                        var userIdExpression = userIdPropertyExpression.Equal(DbExpression.FromString(userId));
+
+                        var newDeleteCommand = new DbDeleteCommandTree(
+                            deleteCommand.MetadataWorkspace,
+                            deleteCommand.DataSpace,
+                            deleteCommand.Target,
+                            deleteCommand.Predicate.And(userIdExpression));
+
+                        interceptionContext.Result = newDeleteCommand;
                     }
                 }
             }
