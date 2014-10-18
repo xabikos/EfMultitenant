@@ -170,7 +170,8 @@
     <Compile Include="Entities\Product.cs" />
     <Compile Include="Entities\ProductCategory.cs" />
     <Compile Include="Entities\TenantAttribute.cs" />
-    <Compile Include="Entities\TenantInterceptor.cs" />
+    <Compile Include="Entities\TenantCommandInterceptor.cs" />
+    <Compile Include="Entities\TenantCommandTreeInterceptor.cs" />
     <Compile Include="Entities\TenantQueryVisitor.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>

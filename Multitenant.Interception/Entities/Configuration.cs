@@ -7,7 +7,8 @@ namespace Multitenant.Interception.Entities
     {
         public EntityFrameworkConfiguration()
         {
-            AddInterceptor(new TenantInterceptor());
+            AddInterceptor(new TenantCommandInterceptor());
+            AddInterceptor(new TenantCommandTreeInterceptor());
         }
 
     }
