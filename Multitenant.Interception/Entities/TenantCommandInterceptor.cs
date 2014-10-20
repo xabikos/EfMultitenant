@@ -7,6 +7,10 @@ using System.Threading;
 
 namespace Multitenant.Interception.Entities
 {
+    /// <summary>
+    /// Custom implementation of <see cref="IDbCommandInterceptor"/>.
+    /// In this class we set the actual value of the tenantId when querying the database as the command tree is cached  
+    /// </summary>
     internal class TenantCommandInterceptor : IDbCommandInterceptor
     {
         public void NonQueryExecuting(DbCommand command, DbCommandInterceptionContext<int> interceptionContext)
@@ -49,7 +53,7 @@ namespace Multitenant.Interception.Entities
                 var userId = userClaim.Value;
                 foreach (DbParameter param in command.Parameters)
                 {
-                    if (!param.ParameterName.StartsWith("TenantId"))
+                    if (!param.ParameterName.StartsWith(TenantAwareAttribute.TenantIdCollumnName))
                         return;
                     param.Value = userId;
                 }

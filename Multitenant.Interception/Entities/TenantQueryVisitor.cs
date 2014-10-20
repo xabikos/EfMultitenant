@@ -4,11 +4,14 @@ using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 
 namespace Multitenant.Interception.Entities
 {
+    /// <summary>
+    /// Visitor pattern implementation class that adds filtering for tenantId column if applicable
+    /// </summary>
     public class TenantQueryVisitor: DefaultExpressionVisitor
     {
         public override DbExpression Visit(DbScanExpression expression)
         {
-            var column = TenantAttribute.GetTenantColumnName(expression.Target.ElementType);
+            var column = TenantAwareAttribute.GetTenantColumnName(expression.Target.ElementType);
             if (!string.IsNullOrEmpty(column))
             {
                 var current = base.Visit(expression).Bind();

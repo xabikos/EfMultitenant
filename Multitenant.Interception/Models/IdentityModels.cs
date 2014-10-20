@@ -58,10 +58,9 @@ namespace Multitenant.Interception.Models
                 .WithMany()
                 .HasForeignKey(p => p.CategoryId)
                 .WillCascadeOnDelete(false);
-            
-            var conv = new AttributeToTableAnnotationConvention<TenantAttribute, string>(
-                "TenantColumnName",
-                (type, attributes) => attributes.Single().ColumnName);
+
+            var conv = new AttributeToTableAnnotationConvention<TenantAwareAttribute, string>("TenantColumnName",
+                (type, attributes) => TenantAwareAttribute.TenantIdCollumnName);
 
             modelBuilder.Conventions.Add(conv);
 

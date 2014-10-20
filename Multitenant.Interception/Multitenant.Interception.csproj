@@ -167,9 +167,10 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ProductCategoriesController.cs" />
     <Compile Include="Entities\Configuration.cs" />
-    <Compile Include="Entities\Product.cs" />
-    <Compile Include="Entities\ProductCategory.cs" />
-    <Compile Include="Entities\TenantAttribute.cs" />
+    <Compile Include="Models\TenantEntity.cs" />
+    <Compile Include="Models\Product.cs" />
+    <Compile Include="Models\ProductCategory.cs" />
+    <Compile Include="Entities\TenantAwareAttribute.cs" />
     <Compile Include="Entities\TenantCommandInterceptor.cs" />
     <Compile Include="Entities\TenantCommandTreeInterceptor.cs" />
     <Compile Include="Entities\TenantQueryVisitor.cs" />
