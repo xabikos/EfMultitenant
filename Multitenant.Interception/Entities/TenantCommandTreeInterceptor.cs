@@ -32,7 +32,11 @@ namespace Multitenant.Interception.Entities
                 {
                     return;
                 }
-                var userId = identity.Claims.Single(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                var userIdclaim = identity.Claims.SingleOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+                if (userIdclaim == null) {
+                    return;
+                }
+                var userId = userIdclaim.Value;
 
                 var insertCommand = interceptionContext.Result as DbInsertCommandTree;
                 if (insertCommand != null)
