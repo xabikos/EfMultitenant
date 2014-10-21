@@ -53,7 +53,7 @@ namespace Multitenant.Interception.Entities
                 var userId = userClaim.Value;
                 foreach (DbParameter param in command.Parameters)
                 {
-                    if (!param.ParameterName.StartsWith(TenantAwareAttribute.TenantIdCollumnName))
+                    if (!param.ParameterName.StartsWith(TenantAwareAttribute.TenantIdFilterName))
                         return;
                     param.Value = userId;
                 }

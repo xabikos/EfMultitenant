@@ -60,7 +60,7 @@ namespace Multitenant.Interception.Models
                 .WillCascadeOnDelete(false);
 
             var conv = new AttributeToTableAnnotationConvention<TenantAwareAttribute, string>("TenantColumnName",
-                (type, attributes) => TenantAwareAttribute.TenantIdCollumnName);
+                (type, attributes) => attributes.Single().ColumnName);
 
             modelBuilder.Conventions.Add(conv);
 

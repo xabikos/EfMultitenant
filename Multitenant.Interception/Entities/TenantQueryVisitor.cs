@@ -16,7 +16,7 @@ namespace Multitenant.Interception.Entities
             {
                 var current = base.Visit(expression).Bind();
                 var columnProperty = current.VariableType.Variable(current.VariableName).Property(column);
-                var param = columnProperty.Property.TypeUsage.Parameter("TenantId");
+                var param = columnProperty.Property.TypeUsage.Parameter(TenantAwareAttribute.TenantIdFilterName);
                 return current.Filter(columnProperty.Equal(param));
             }
 
