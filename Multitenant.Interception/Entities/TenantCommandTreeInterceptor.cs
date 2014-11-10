@@ -118,25 +118,38 @@ namespace Multitenant.Interception.Entities
                 var column = TenantAwareAttribute.GetTenantColumnName(updateCommand.Target.VariableType.EdmType);
                 if (!string.IsNullOrEmpty(column))
                 {
-                    // Remove from set clauses the userId in case it was added by accident
-                    var setClausesWithoutSiteId =
-                        updateCommand.SetClauses.Cast<DbSetClause>()
-                            .Where(sc => ((DbPropertyExpression) sc.Property).Property.Name != column);
+                    // Get the variable in order to create the correct set statement
+                    var tenantVariable = DbExpressionBuilder.Variable(updateCommand.Target.VariableType,
+                        updateCommand.Target.VariableName);
+                    // Create the property to which will assign the correct value
+                    var tenantProperty = DbExpressionBuilder.Property(tenantVariable, column);
+                    // Create the tenantId where predicate, object representation of sql where tenantId = value statement
+                    var tenantIdWherePredicate = DbExpressionBuilder.Equal(tenantProperty, DbExpression.FromString(userId));
 
-                    var userIdPropertyExpression =
-                        updateCommand.Target.VariableType.Variable(updateCommand.Target.VariableName)
-                            .Property(column);
-                    var userIdExpression = userIdPropertyExpression.Equal(DbExpression.FromString(userId));
+                    // Remove potential assignment of tenantId for extra safety
+                    var filteredSetClauses = 
+                        updateCommand.SetClauses.Cast<DbSetClause>()
+                            .Where(sc => ((DbPropertyExpression)sc.Property).Property.Name != column);
+
+                    // Construct the final clauses, object representation of sql insert command values
+                    var finalSetClauses =
+                        new ReadOnlyCollection<DbModificationClause>(new List<DbModificationClause>(filteredSetClauses));
+
+                    // The initial predicate is the sql where statement
+                    var initialPredicate = updateCommand.Predicate;
+                    // Add to the initial statement the tenantId statement which translates in sql AND TenantId = 'value'
+                    var finalPredicate = initialPredicate.And(tenantIdWherePredicate);
 
                     var newUpdateCommand = new DbUpdateCommandTree(
                         updateCommand.MetadataWorkspace,
                         updateCommand.DataSpace,
                         updateCommand.Target,
-                        updateCommand.Predicate.And(userIdExpression),
-                        new List<DbModificationClause>(setClausesWithoutSiteId).AsReadOnly(),
+                        finalPredicate,
+                        finalSetClauses,
                         updateCommand.Returning);
 
                     interceptionContext.Result = newUpdateCommand;
+                    // True means an interception successfully happened so there is no need to continue
                     return true;
                 }
             }
