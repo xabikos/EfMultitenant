@@ -165,19 +165,25 @@ namespace Multitenant.Interception.Entities
             if (deleteCommand != null)
             {
                 var column = TenantAwareAttribute.GetTenantColumnName(deleteCommand.Target.VariableType.EdmType);
-
                 if (!string.IsNullOrEmpty(column))
                 {
-                    var userIdPropertyExpression =
-                        deleteCommand.Target.VariableType.Variable(deleteCommand.Target.VariableName)
-                            .Property(column);
-                    var userIdExpression = userIdPropertyExpression.Equal(DbExpression.FromString(userId));
+                    // Get the variable in order to create the correct set statement
+                    var tenantVariable = DbExpressionBuilder.Variable(deleteCommand.Target.VariableType,
+                        deleteCommand.Target.VariableName);
+                    // Create the property to which will assign the correct value
+                    var tenantProperty = DbExpressionBuilder.Property(tenantVariable, column);
+                    var tenantIdWherePredicate = DbExpressionBuilder.Equal(tenantProperty, DbExpression.FromString(userId));
 
+                    // The initial predicate is the sql where statement
+                    var initialPredicate = deleteCommand.Predicate;
+                    // Add to the initial statement the tenantId statement which translates in sql AND TenantId = 'value'
+                    var finalPredicate = initialPredicate.And(tenantIdWherePredicate);
+                    
                     var newDeleteCommand = new DbDeleteCommandTree(
                         deleteCommand.MetadataWorkspace,
                         deleteCommand.DataSpace,
                         deleteCommand.Target,
-                        deleteCommand.Predicate.And(userIdExpression));
+                        finalPredicate);
 
                     interceptionContext.Result = newDeleteCommand;
                 }
