@@ -10,7 +10,7 @@ namespace Multitenant.Interception.Entities
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public class TenantAwareAttribute : Attribute
     {
-        public const string TenantIdFilterName = "TenantId";
+        public const string TenantIdFilterParameterName = "TenantIdParameter";
 
         public string ColumnName { get; private set; }
 
