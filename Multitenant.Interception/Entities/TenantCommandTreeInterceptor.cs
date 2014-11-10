@@ -70,11 +70,11 @@ namespace Multitenant.Interception.Entities
                 var column = TenantAwareAttribute.GetTenantColumnName(insertCommand.Target.VariableType.EdmType);
                 if (!string.IsNullOrEmpty(column))
                 {
-                    // Get the variable in order to create the correct set statement
-                    var tenantVariable = DbExpressionBuilder.Variable(insertCommand.Target.VariableType,
+                    // Create the variable reference in order to create the property
+                    var variableReference = DbExpressionBuilder.Variable(insertCommand.Target.VariableType,
                         insertCommand.Target.VariableName);
                     // Create the property to which will assign the correct value
-                    var tenantProperty = DbExpressionBuilder.Property(tenantVariable, column);
+                    var tenantProperty = DbExpressionBuilder.Property(variableReference, column);
                     // Create the set clause, object representation of sql insert command
                     var tenantSetClause =
                         DbExpressionBuilder.SetClause(tenantProperty, DbExpression.FromString(userId));
@@ -118,11 +118,11 @@ namespace Multitenant.Interception.Entities
                 var column = TenantAwareAttribute.GetTenantColumnName(updateCommand.Target.VariableType.EdmType);
                 if (!string.IsNullOrEmpty(column))
                 {
-                    // Get the variable in order to create the correct set statement
-                    var tenantVariable = DbExpressionBuilder.Variable(updateCommand.Target.VariableType,
+                    // Create the variable reference in order to create the property
+                    var variableReference = DbExpressionBuilder.Variable(updateCommand.Target.VariableType,
                         updateCommand.Target.VariableName);
                     // Create the property to which will assign the correct value
-                    var tenantProperty = DbExpressionBuilder.Property(tenantVariable, column);
+                    var tenantProperty = DbExpressionBuilder.Property(variableReference, column);
                     // Create the tenantId where predicate, object representation of sql where tenantId = value statement
                     var tenantIdWherePredicate = DbExpressionBuilder.Equal(tenantProperty, DbExpression.FromString(userId));
 
@@ -167,11 +167,11 @@ namespace Multitenant.Interception.Entities
                 var column = TenantAwareAttribute.GetTenantColumnName(deleteCommand.Target.VariableType.EdmType);
                 if (!string.IsNullOrEmpty(column))
                 {
-                    // Get the variable in order to create the correct set statement
-                    var tenantVariable = DbExpressionBuilder.Variable(deleteCommand.Target.VariableType,
+                    // Create the variable reference in order to create the property
+                    var variableReference = DbExpressionBuilder.Variable(deleteCommand.Target.VariableType,
                         deleteCommand.Target.VariableName);
                     // Create the property to which will assign the correct value
-                    var tenantProperty = DbExpressionBuilder.Property(tenantVariable, column);
+                    var tenantProperty = DbExpressionBuilder.Property(variableReference, column);
                     var tenantIdWherePredicate = DbExpressionBuilder.Equal(tenantProperty, DbExpression.FromString(userId));
 
                     // The initial predicate is the sql where statement
