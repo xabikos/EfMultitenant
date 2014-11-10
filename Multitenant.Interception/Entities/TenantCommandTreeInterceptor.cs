@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data.Entity.Core.Common.CommandTrees;
 using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 using System.Data.Entity.Core.Metadata.Edm;
@@ -69,28 +70,37 @@ namespace Multitenant.Interception.Entities
                 var column = TenantAwareAttribute.GetTenantColumnName(insertCommand.Target.VariableType.EdmType);
                 if (!string.IsNullOrEmpty(column))
                 {
+                    // Get the variable in order to create the correct set statement
+                    var tenantVariable = DbExpressionBuilder.Variable(insertCommand.Target.VariableType,
+                        insertCommand.Target.VariableName);
+                    // Create the property to which will assign the correct value
+                    var tenantProperty = DbExpressionBuilder.Property(tenantVariable, column);
+                    // Create the set clause, object representation of sql insert command
                     var tenantSetClause =
-                        DbExpressionBuilder.SetClause(
-                            insertCommand.Target.VariableType.Variable(insertCommand.Target.VariableName)
-                                .Property(column), DbExpression.FromString(userId));
+                        DbExpressionBuilder.SetClause(tenantProperty, DbExpression.FromString(userId));
 
+                    // Remove potential assignment of tenantId for extra safety 
                     var filteredSetClauses =
                         insertCommand.SetClauses.Cast<DbSetClause>()
                             .Where(sc => ((DbPropertyExpression)sc.Property).Property.Name != column);
 
-                    var finalModificationClauses = new List<DbModificationClause>(filteredSetClauses)
-                    {
-                        tenantSetClause
-                    };
+                    // Construct the final clauses, object representation of sql insert command values
+                    var finalSetClauses =
+                        new ReadOnlyCollection<DbModificationClause>(new List<DbModificationClause>(filteredSetClauses)
+                        {
+                            tenantSetClause
+                        });
 
+                    // Construct the new command
                     var newInsertCommand = new DbInsertCommandTree(
                         insertCommand.MetadataWorkspace,
                         insertCommand.DataSpace,
                         insertCommand.Target,
-                        finalModificationClauses.AsReadOnly(),
+                        finalSetClauses,
                         insertCommand.Returning);
 
                     interceptionContext.Result = newInsertCommand;
+                    // True means an interception successfully happened so there is no need to continue
                     return true;
                 }
             }
