@@ -51,9 +51,10 @@ namespace Multitenant.Interception.Entities
             if (userClaim != null)
             {
                 var userId = userClaim.Value;
+                // Enumerate all command parameters and assign the correct value in the one we added inside query visitor
                 foreach (DbParameter param in command.Parameters)
                 {
-                    if (!param.ParameterName.StartsWith(TenantAwareAttribute.TenantIdFilterParameterName))
+                    if (param.ParameterName != TenantAwareAttribute.TenantIdFilterParameterName)
                         return;
                     param.Value = userId;
                 }
