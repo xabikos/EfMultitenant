@@ -2,7 +2,7 @@
 using System.Data.Entity.Core.Metadata.Edm;
 using System.Linq;
 
-namespace Multitenant.Interception.Entities
+namespace Multitenant.Interception.Infrastructure
 {
     /// <summary>
     /// Attribute used to mark all entities which should be filtered based on tenantId

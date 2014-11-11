@@ -3,7 +3,6 @@ using System.Data.Entity;
 using System.Threading.Tasks;
 using System.Net;
 using System.Web.Mvc;
-using Multitenant.Interception.Entities;
 using Multitenant.Interception.Models;
 
 namespace Multitenant.Interception.Controllers

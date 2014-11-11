@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data.Entity;
 
-namespace Multitenant.Interception.Entities
+namespace Multitenant.Interception.Infrastructure
 {
     public class EntityFrameworkConfiguration : DbConfiguration
     {

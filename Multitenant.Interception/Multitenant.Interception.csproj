@@ -166,14 +166,14 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ProductCategoriesController.cs" />
-    <Compile Include="Entities\Configuration.cs" />
+    <Compile Include="Infrastructure\Configuration.cs" />
+    <Compile Include="Infrastructure\TenantAwareAttribute.cs" />
+    <Compile Include="Infrastructure\TenantCommandInterceptor.cs" />
+    <Compile Include="Infrastructure\TenantCommandTreeInterceptor.cs" />
+    <Compile Include="Infrastructure\TenantQueryVisitor.cs" />
     <Compile Include="Models\TenantEntity.cs" />
     <Compile Include="Models\Product.cs" />
     <Compile Include="Models\ProductCategory.cs" />
-    <Compile Include="Entities\TenantAwareAttribute.cs" />
-    <Compile Include="Entities\TenantCommandInterceptor.cs" />
-    <Compile Include="Entities\TenantCommandTreeInterceptor.cs" />
-    <Compile Include="Entities\TenantQueryVisitor.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

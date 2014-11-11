@@ -9,7 +9,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 
-namespace Multitenant.Interception.Entities
+namespace Multitenant.Interception.Infrastructure
 {
     /// <summary>
     /// Custom implementation of <see cref="IDbCommandTreeInterceptor"/> which filters based on tenantId.

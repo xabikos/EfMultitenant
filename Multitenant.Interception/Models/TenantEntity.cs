@@ -1,5 +1,5 @@
 ﻿using System;
-using Multitenant.Interception.Entities;
+using Multitenant.Interception.Infrastructure;
 
 namespace Multitenant.Interception.Models
 {

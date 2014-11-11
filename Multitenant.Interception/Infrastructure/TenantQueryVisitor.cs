@@ -2,7 +2,7 @@
 using System.Data.Entity.Core.Common.CommandTrees;
 using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 
-namespace Multitenant.Interception.Entities
+namespace Multitenant.Interception.Infrastructure
 {
     /// <summary>
     /// Visitor pattern implementation class that adds filtering for tenantId column if applicable
