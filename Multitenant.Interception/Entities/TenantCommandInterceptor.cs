@@ -40,7 +40,7 @@ namespace Multitenant.Interception.Entities
         {
         }
 
-        private void SetTenantParameterValue(DbCommand command)
+        private static void SetTenantParameterValue(DbCommand command)
         {
             var identity = Thread.CurrentPrincipal.Identity as ClaimsIdentity;
             if ((command == null) || (command.Parameters.Count == 0) || identity == null)
