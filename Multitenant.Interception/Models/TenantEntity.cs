@@ -13,7 +13,7 @@ namespace Multitenant.Interception.Models
         /// In this case this is the User Id 
         /// as each user is able to access only his own entities
         /// </summary>
-        public string TenantId { get; set; }
+        public string TenantId { get; private set; }
 
         /// <summary>
         /// The user the entity belongs to
