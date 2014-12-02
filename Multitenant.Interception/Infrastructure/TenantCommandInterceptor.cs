@@ -55,7 +55,7 @@ namespace Multitenant.Interception.Infrastructure
                 foreach (DbParameter param in command.Parameters)
                 {
                     if (param.ParameterName != TenantAwareAttribute.TenantIdFilterParameterName)
-                        return;
+                        continue;
                     param.Value = userId;
                 }
             }
