@@ -18,45 +18,42 @@ namespace Multitenant.Interception.Infrastructure
     {
         public void TreeCreated(DbCommandTreeInterceptionContext interceptionContext)
         {
-            if (interceptionContext.OriginalResult.DataSpace == DataSpace.SSpace)
+            // Check that there is an authenticated user in this context
+            var identity = Thread.CurrentPrincipal.Identity as ClaimsIdentity;
+            if (identity == null)
             {
-                // Check that there is an authenticated user in this context
-                var identity = Thread.CurrentPrincipal.Identity as ClaimsIdentity;
-                if (identity == null)
-                {
-                    return;
-                }
-                var userIdclaim = identity.Claims.SingleOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-                if (userIdclaim == null)
-                {
-                    return;
-                }
-                
-                // In case of query command change the query by adding a filtering based on tenantId 
-                var queryCommand = interceptionContext.Result as DbQueryCommandTree;
-                if (queryCommand != null)
-                {
-                    var newQuery = queryCommand.Query.Accept(new TenantQueryVisitor());
-                    interceptionContext.Result = new DbQueryCommandTree(
-                        queryCommand.MetadataWorkspace,
-                        queryCommand.DataSpace,
-                        newQuery);
-                    return;
-                }
-
-                var userId = userIdclaim.Value;
-                if (InterceptInsertCommand(interceptionContext, userId))
-                {
-                    return;
-                }
-
-                if (InterceptUpdate(interceptionContext, userId))
-                {
-                    return;
-                }
-
-                InterceptDeleteCommand(interceptionContext, userId);
+                return;
             }
+            var userIdclaim = identity.Claims.SingleOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+            if (userIdclaim == null)
+            {
+                return;
+            }
+
+            // In case of query command change the query by adding a filtering based on tenantId
+            var queryCommand = interceptionContext.Result as DbQueryCommandTree;
+            if (queryCommand != null)
+            {
+                var newQuery = queryCommand.Query.Accept(new TenantQueryVisitor(interceptionContext.OriginalResult.DataSpace));
+                interceptionContext.Result = new DbQueryCommandTree(
+                    queryCommand.MetadataWorkspace,
+                    queryCommand.DataSpace,
+                    newQuery);
+                return;
+            }
+
+            var userId = userIdclaim.Value;
+            if (InterceptInsertCommand(interceptionContext, userId))
+            {
+                return;
+            }
+
+            if (InterceptUpdate(interceptionContext, userId))
+            {
+                return;
+            }
+
+            InterceptDeleteCommand(interceptionContext, userId);
         }
 
         /// <summary>
