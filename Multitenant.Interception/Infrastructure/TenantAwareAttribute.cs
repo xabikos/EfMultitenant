@@ -30,8 +30,22 @@ namespace Multitenant.Interception.Infrastructure
                 type.MetadataProperties.SingleOrDefault(
                     p => p.Name.EndsWith(string.Format("customannotation:{0}", TenantAnnotation)));
 
-            return annotation == null ? null : (string)annotation.Value;
-        }
+            if (annotation == null)
+            {
+                var clrTypeMetadataPropName = @"http://schemas.microsoft.com/ado/2013/11/edm/customannotation:ClrType";
+                var customAnnotationValue = (Type) type.MetadataProperties.SingleOrDefault(p => p.Name == clrTypeMetadataPropName)?.Value;
 
+                if (customAnnotationValue == null)
+                {
+                    return null;
+                }
+
+                var mandantenFaehigAttribute = customAnnotationValue.CustomAttributes.SingleOrDefault(ca => ca.AttributeType.Name == nameof(MandantenFaehigAttribute));
+                var columnName = mandantenFaehigAttribute?.ConstructorArguments.FirstOrDefault();
+                return (string) columnName?.Value;
+            }
+
+            return (string) annotation.Value;
+        }
     }
 }
