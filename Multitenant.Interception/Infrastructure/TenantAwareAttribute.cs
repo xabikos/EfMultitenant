@@ -40,8 +40,8 @@ namespace Multitenant.Interception.Infrastructure
                     return null;
                 }
 
-                var mandantenFaehigAttribute = customAnnotationValue.CustomAttributes.SingleOrDefault(ca => ca.AttributeType.Name == nameof(MandantenFaehigAttribute));
-                var columnName = mandantenFaehigAttribute?.ConstructorArguments.FirstOrDefault();
+                var tenantAwareAttribute = customAnnotationValue.CustomAttributes.SingleOrDefault(ca => ca.AttributeType.Name == nameof(TenantAwareAttribute));
+                var columnName = tenantAwareAttribute?.ConstructorArguments.FirstOrDefault();
                 return (string) columnName?.Value;
             }
 
