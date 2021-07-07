@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data.Entity.Core.Common.CommandTrees;
 using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
+using System.Data.Entity.Core.Metadata.Edm;
 
 namespace Multitenant.Interception.Infrastructure
 {
@@ -13,6 +14,12 @@ namespace Multitenant.Interception.Infrastructure
         /// Flag prevents applying the custom filtering twice per query 
         /// </summary>
         private bool _injectedDynamicFilter;
+        private readonly bool _isSSpace;
+        
+        public TenantQueryVisitor(DataSpace originalResultDataSpace)
+        {
+            _isSSpace = originalResultDataSpace == DataSpace.SSpace;
+        }
 
         /// <summary>
         /// This method called before the one below it when a filtering is already exists in the query (e.g. fetch an entity by id)
@@ -21,7 +28,7 @@ namespace Multitenant.Interception.Infrastructure
         public override DbExpression Visit(DbFilterExpression expression)
         {
             var column = TenantAwareAttribute.GetTenantColumnName(expression.Input.Variable.ResultType.EdmType);
-            if (!_injectedDynamicFilter && !string.IsNullOrEmpty(column))
+            if (!_injectedDynamicFilter && !string.IsNullOrEmpty(column) && !_isSSpace)
             {
                 var newFilterExpression = BuildFilterExpression(expression.Input, expression.Predicate, column);
                 if (newFilterExpression != null)
@@ -37,7 +44,7 @@ namespace Multitenant.Interception.Infrastructure
         public override DbExpression Visit(DbScanExpression expression)
         {
             var column = TenantAwareAttribute.GetTenantColumnName(expression.Target.ElementType);
-            if (!_injectedDynamicFilter && !string.IsNullOrEmpty(column))
+            if (!_injectedDynamicFilter && !string.IsNullOrEmpty(column) && !_isSSpace)
             {
                 // Get the current expression
                 var dbExpression = base.Visit(expression);
@@ -46,7 +53,7 @@ namespace Multitenant.Interception.Infrastructure
                 var newFilterExpression = BuildFilterExpression(currentExpressionBinding, null, column);
                 if (newFilterExpression != null)
                 {
-                    //  If not null, a new DbFilterExpression has been created with our dynamic filters.
+                    // If not null, a new DbFilterExpression has been created with our dynamic filters.
                     return base.Visit(newFilterExpression);
                 }
             }
